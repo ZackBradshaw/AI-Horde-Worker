@@ -1,10 +1,13 @@
-import os
-from pathlib import Path
 
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
+from pathlib import Path
+import os
 import yaml
 
 from worker.consts import BRIDGE_CONFIG_FILE
-
 
 def set_worker_env_vars_from_config():
     config_file_as_path = Path(BRIDGE_CONFIG_FILE)

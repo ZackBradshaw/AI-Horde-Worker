@@ -1,46 +1,71 @@
+
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Print each command before executing it (for debugging)
+set -x
+
+echo "Starting update-runtime.sh..."
+
 ignore_hordelib=false
+hordelib=false
+scribe=false
 
 # Parse command line arguments
-while [[ $# -gt 0 ]]
-do
-key="$1"
+while [[ $# -gt 0 ]]; do
+    key="$1"
 
-case $key in
-    --hordelib)
-    hordelib=true
-    shift # past argument
-    ;;
-    --scribe)
-    scribe=true
-    shift
-    ;;
-    *)    # unknown option
-    echo "Unknown option: $key"
-    exit 1
-    ;;
-esac
-shift # past argument or value
+    case $key in
+        --hordelib)
+        hordelib=true
+        shift # past argument
+        ;;
+        --scribe)
+        scribe=true
+        shift
+        ;;
+        *)    # unknown option
+        echo "Unknown option: $key"
+        exit 1
+        ;;
+    esac
 done
 
-CONDA_ENVIRONMENT_FILE=environment.yaml
+# Determine the correct environment file
+CONDA_ENVIRONMENT_FILE=/usr/local/bin/environment.yaml
 if [ "$scribe" = true ]; then
-    CONDA_ENVIRONMENT_FILE=environment_scribe.yaml
+    CONDA_ENVIRONMENT_FILE=/usr/local/bin/environment_scribe.yaml
 fi
 
-wget -qO- https://micromamba.snakepit.net/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-if [ ! -f "conda/envs/linux/bin/python" ]; then
-    bin/micromamba create --no-shortcuts -r conda -n linux -f ${CONDA_ENVIRONMENT_FILE} -y
-fi
-bin/micromamba create --no-shortcuts -r conda -n linux -f ${CONDA_ENVIRONMENT_FILE} -y
+# Install micromamba
+echo "Installing micromamba..."
+"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
 
-if [ "$hordelib" = true ]; then
- bin/micromamba run -r conda -n linux python -s -m pip uninstall -y hordelib horde_model_reference
- bin/micromamba run -r conda -n linux python -s -m pip install hordelib horde_model_reference
-elif [ "$scribe" = true ]; then
- bin/micromamba run -r conda -n linux python -s -m pip install -r requirements-scribe.txt
+# Source the shell configuration file to activate micromamba
+echo "Sourcing .bashrc to activate micromamba..."
+source /root/.bashrc
+
+# Check if conda environment exists and create it if it does not
+if [ ! -f "conda/envs/ldm/bin/python" ]; then
+    echo "Creating conda environment from ${CONDA_ENVIRONMENT_FILE}..."
+    if /root/.local/bin/micromamba create --no-shortcuts -r conda -n ldm -f ${CONDA_ENVIRONMENT_FILE} -y; then
+        echo "Conda environment created successfully."
+    else
+        echo "Error: Failed to create conda environment."
+        exit 1
+    fi
+fi
+
+# Debug: list available versions of cudatoolkit
+echo "Checking available versions of cudatoolkit..."
+/root/.local/bin/micromamba search cudatoolkit
+
+# Always ensure the environment is up-to-date
+echo "Updating conda environment from ${CONDA_ENVIRONMENT_FILE}..."
+if /root/.local/bin/micromamba create --no-shortcuts -r conda -n ldm -f ${CONDA_ENVIRONMENT_FILE} -y; then
+    echo "Conda environment updated successfully."
 else
- bin/micromamba run -r conda -n linux python -s -m pip uninstall -y nataili
- bin/micromamba run -r conda -n linux python -s -m pip install -r requirements.txt
-fi
+    ech
+
