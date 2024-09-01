@@ -229,6 +229,56 @@ class ScribePopper(JobPopper):
             return None
         return [self.pop]
 
+class MultiModalPopper(JobPopper):
+    BRIDGE_AGENT = f"AI Horde Multi-Modal Worker:{BRIDGE_VERSION}:https://github.com/Haidra-Org/AI-Horde-Worker"
+
+    def __init__(self, mm, bd):
+        super().__init__(mm, bd)
+        self.endpoint = "/api/v2/generate/multimodal/pop"
+        self.pop_payload = self.get_pop_payload()
+
+    def get_pop_payload(self):
+        return {
+            "name": self.bridge_data.worker_name,
+            "max_new_tokens": self.bridge_data.max_new_tokens,
+            "priority_usernames": self.bridge_data.priority_usernames,
+            "nsfw": self.bridge_data.nsfw,
+            "blacklist": self.bridge_data.blacklist,
+            "models": [self.bridge_data.model],
+            "allow_unsafe_ip": self.bridge_data.allow_unsafe_ip,
+            "threads": self.bridge_data.max_threads,
+            "require_upfront_kudos": self.bridge_data.require_upfront_kudos,
+            "bridge_version": BRIDGE_VERSION,
+            "bridge_agent": self.BRIDGE_AGENT,
+            "supported_tasks": self.bridge_data.supported_tasks,
+        }
+
+    def download_media_data(self, media_url):
+        """Returns the media data"""
+        media_data = None
+        try:
+            with requests.get(media_url, stream=True, timeout=10) as r:
+                size = r.headers.get("Content-Length", 0)
+                if int(size) > 20480000:  # 20MB limit
+                    logger.error(f"Provided media ({media_url}) cannot be larger than 20MB")
+                    return None
+                mbs = 0
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        if mbs == 0:
+                            media_data = chunk
+                        else:
+                            media_data += chunk
+                        mbs += 1
+                        if mbs > 20:
+                            logger.error(f"Provided media ({media_url}) cannot be larger than 20MB")
+                            return None
+        except Exception as err:
+            logger.error(err)
+            return None
+        if not media_data:
+            logger.error(f"Could not download media from {media_url}. Skipping media.")
+        return media_data
 
 class InterrogationPopper(JobPopper):
     def __init__(self, mm, bd):
