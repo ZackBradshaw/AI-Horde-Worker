@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status
@@ -45,12 +44,12 @@ echo "Installing micromamba..."
 
 # Source the shell configuration file to activate micromamba
 echo "Sourcing .bashrc to activate micromamba..."
-source /root/.bashrc
+source "$HOME/.bashrc"
 
 # Check if conda environment exists and create it if it does not
-if [ ! -f "conda/envs/ldm/bin/python" ]; then
+if [ ! -f "$HOME/micromamba/envs/ldm/bin/python" ]; then
     echo "Creating conda environment from ${CONDA_ENVIRONMENT_FILE}..."
-    if /root/.local/bin/micromamba create --no-shortcuts -r conda -n ldm -f ${CONDA_ENVIRONMENT_FILE} -y; then
+    if $HOME/.local/bin/micromamba create --no-shortcuts -r "$HOME/micromamba" -n ldm -f "${CONDA_ENVIRONMENT_FILE}" -y; then
         echo "Conda environment created successfully."
     else
         echo "Error: Failed to create conda environment."
@@ -60,12 +59,16 @@ fi
 
 # Debug: list available versions of cudatoolkit
 echo "Checking available versions of cudatoolkit..."
-/root/.local/bin/micromamba search cudatoolkit
+$HOME/.local/bin/micromamba search cudatoolkit
 
 # Always ensure the environment is up-to-date
 echo "Updating conda environment from ${CONDA_ENVIRONMENT_FILE}..."
-if /root/.local/bin/micromamba create --no-shortcuts -r conda -n ldm -f ${CONDA_ENVIRONMENT_FILE} -y; then
+if $HOME/.local/bin/micromamba create --no-shortcuts -r "$HOME/micromamba" -n ldm -f "${CONDA_ENVIRONMENT_FILE}" -y; then
     echo "Conda environment updated successfully."
 else
-    ech
+    echo "Error: Failed to update conda environment."
+    exit 1
+fi
+
+echo "Runtime environment setup completed successfully."
 
