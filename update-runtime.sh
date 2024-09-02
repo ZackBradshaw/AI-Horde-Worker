@@ -15,17 +15,16 @@ scribe=false
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
-
     case $key in
         --hordelib)
         hordelib=true
-        shift # past argument
+        shift
         ;;
         --scribe)
         scribe=true
         shift
         ;;
-        *)    # unknown option
+        *)
         echo "Unknown option: $key"
         exit 1
         ;;
@@ -33,9 +32,30 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Determine the correct environment file
-CONDA_ENVIRONMENT_FILE=/usr/local/bin/environment.yaml
+CONDA_ENVIRONMENT_FILE="$HOME/.lib/horde/worker/environment.yaml"
 if [ "$scribe" = true ]; then
-    CONDA_ENVIRONMENT_FILE=/usr/local/bin/environment_scribe.yaml
+    CONDA_ENVIRONMENT_FILE="$HOME/.lib/horde/worker/environment_scribe.yaml"
+fi
+
+# Create a basic environment file if it doesn't exist
+if [ ! -f "$CONDA_ENVIRONMENT_FILE" ]; then
+    echo "Environment file not found. Creating a basic one..."
+    cat << EOF > "$CONDA_ENVIRONMENT_FILE"
+name: ldm
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - lmdeploy
+    - requests
+    - pyyaml
+    - loguru
+    - pillow
+    - decord
+EOF
 fi
 
 # Install micromamba
