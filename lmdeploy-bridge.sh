@@ -25,6 +25,7 @@ conda activate lmdeploy
 
 # Install required packages
 pip install -U pip
+pip install -e .
 pip install lmdeploy requests pyyaml loguru pillow decord
 
 # Set environment variables
