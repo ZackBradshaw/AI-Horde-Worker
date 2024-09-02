@@ -15,11 +15,17 @@ echo "Max Media Size: $max_media_size"
 echo "Number of GPUs: $num_gpus"
 
 # Set up Python environment
-python3 -m venv venv
-source venv/bin/activate
+# python3 -m venv venv
+# source venv/bin/activate
+
+# Setup conda env
+conda create -n lmdeploy python=3.8 -y
+conda activate lmdeploy
+pip install lmdeploy
 
 # Install required packages
 pip install -U pip
+
 pip install lmdeploy requests pyyaml loguru pillow
 pip install decord
 
