@@ -38,7 +38,7 @@ setup_runtime
 echo "Installing required packages..."
 run_in_runtime -m pip install -U pip
 run_in_runtime -m pip install -e .
-run_in_runtime -m pip install lmdeploy requests pyyaml loguru pillow decord
+run_in_runtime -m pip install lmdeploy requests pyyaml loguru pillow decord urllib3
 
 # Set environment variables
 export HORDE_URL="https://stablehorde.net"
