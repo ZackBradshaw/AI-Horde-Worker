@@ -20,6 +20,7 @@ echo "Number of GPUs: $num_gpus"
 
 # Setup conda env
 conda create -n lmdeploy python=3.8 -y
+conda init
 conda activate lmdeploy
 pip install lmdeploy
 
