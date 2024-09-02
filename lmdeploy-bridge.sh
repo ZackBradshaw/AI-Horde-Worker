@@ -37,7 +37,6 @@ setup_runtime
 # Install required packages
 echo "Installing required packages..."
 run_in_runtime -m pip install -U pip
-run_in_runtime -m pip install -e .
 run_in_runtime -m pip install lmdeploy requests pyyaml loguru pillow decord urllib3
 
 # Set environment variables
