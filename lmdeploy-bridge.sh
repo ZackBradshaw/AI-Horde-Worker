@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Set default values if not provided
-export model_name=${model_name:-"internlm/internlm-xcomposer2d5-7b"}
-export max_new_tokens=${max_new_tokens:-2048}
-export max_input_length=${max_input_length:-4096}
-export max_media_size=${max_media_size:-96000}
-export num_gpus=${num_gpus:-1}
+model_name=${model_name:-"internlm/internlm-xcomposer2d5-7b"}
+max_new_tokens=${max_new_tokens:-2048}
+max_input_length=${max_input_length:-4096}
+max_media_size=${max_media_size:-96000}
+num_gpus=${num_gpus:-1}
 
 # Print the entered values
 echo "Model Name: $model_name"
@@ -14,21 +14,31 @@ echo "Max Input Length: $max_input_length"
 echo "Max Media Size: $max_media_size"
 echo "Number of GPUs: $num_gpus"
 
-# Ensure the runtime environment is set up
-if [ ! -f "conda/envs/linux/bin/python" ]; then
-    echo "Setting up runtime environment..."
-    ./update-runtime.sh
-    if [ $? -ne 0 ]; then
-        echo "Failed to set up runtime environment. Exiting."
-        exit 1
+# Function to set up the runtime environment
+setup_runtime() {
+    if [ ! -f "conda/envs/linux/bin/python" ]; then
+        echo "Setting up runtime environment..."
+        bash ./update-runtime.sh
+        if [ $? -ne 0 ]; then
+            echo "Failed to set up runtime environment. Exiting."
+            exit 1
+        fi
     fi
-fi
+}
 
-# Use the existing runtime to install packages
+# Function to run commands in the runtime environment
+run_in_runtime() {
+    ./runtime.sh "$@"
+}
+
+# Set up the runtime environment
+setup_runtime
+
+# Install required packages
 echo "Installing required packages..."
-./runtime.sh pip install -U pip
-./runtime.sh pip install -e .
-./runtime.sh pip install lmdeploy requests pyyaml loguru pillow decord
+run_in_runtime pip install -U pip
+run_in_runtime pip install -e .
+run_in_runtime pip install lmdeploy requests pyyaml loguru pillow decord
 
 # Set environment variables
 export HORDE_URL="https://stablehorde.net"
@@ -44,4 +54,4 @@ export DISABLE_TERMINAL_UI="false"
 
 # Start the multi-modal worker
 echo "Starting multi-modal worker..."
-./runtime.sh python -s bridge_multimodal.py "$@"
+run_in_runtime python -s bridge_multimodal.py "$@"v
