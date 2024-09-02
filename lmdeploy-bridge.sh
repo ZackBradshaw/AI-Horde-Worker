@@ -14,21 +14,18 @@ echo "Max Input Length: $max_input_length"
 echo "Max Media Size: $max_media_size"
 echo "Number of GPUs: $num_gpus"
 
-# Set up Python environment
-# python3 -m venv venv
-# source venv/bin/activate
-
 # Setup conda env
 conda create -n lmdeploy python=3.8 -y
-conda init
+
+# Initialize conda for the current shell session
+eval "$(conda shell.bash hook)"
+
+# Activate the environment
 conda activate lmdeploy
-pip install lmdeploy
 
 # Install required packages
 pip install -U pip
-
-pip install lmdeploy requests pyyaml loguru pillow
-pip install decord
+pip install lmdeploy requests pyyaml loguru pillow decord
 
 # Set environment variables
 export HORDE_URL="https://stablehorde.net"
