@@ -66,15 +66,27 @@ echo "Installing micromamba..."
 echo "Sourcing .bashrc to activate micromamba..."
 source "$HOME/.bashrc"
 
-# Check if conda environment exists and create it if it does not
-if [ ! -f "$HOME/micromamba/envs/ldm/bin/python" ]; then
+# Function to create conda environment
+create_conda_env() {
     echo "Creating conda environment from ${CONDA_ENVIRONMENT_FILE}..."
     if $HOME/.local/bin/micromamba create --no-shortcuts -r "$HOME/micromamba" -n ldm -f "${CONDA_ENVIRONMENT_FILE}" -y; then
         echo "Conda environment created successfully."
     else
-        echo "Error: Failed to create conda environment."
-        exit 1
+        echo "Error: Failed to create conda environment with cudatoolkit. Trying without..."
+        # Remove cudatoolkit from the environment file
+        sed -i '/cudatoolkit/d' "${CONDA_ENVIRONMENT_FILE}"
+        if $HOME/.local/bin/micromamba create --no-shortcuts -r "$HOME/micromamba" -n ldm -f "${CONDA_ENVIRONMENT_FILE}" -y; then
+            echo "Conda environment created successfully without cudatoolkit."
+        else
+            echo "Error: Failed to create conda environment. Exiting."
+            exit 1
+        fi
     fi
+}
+
+# Check if conda environment exists and create it if it does not
+if [ ! -f "$HOME/micromamba/envs/ldm/bin/python" ]; then
+    create_conda_env
 fi
 
 # Debug: list available versions of cudatoolkit
@@ -83,11 +95,10 @@ $HOME/.local/bin/micromamba search cudatoolkit
 
 # Always ensure the environment is up-to-date
 echo "Updating conda environment from ${CONDA_ENVIRONMENT_FILE}..."
-if $HOME/.local/bin/micromamba create --no-shortcuts -r "$HOME/micromamba" -n ldm -f "${CONDA_ENVIRONMENT_FILE}" -y; then
-    echo "Conda environment updated successfully."
-else
-    echo "Error: Failed to update conda environment."
-    exit 1
+if ! $HOME/.local/bin/micromamba update --no-shortcuts -r "$HOME/micromamba" -n ldm -f "${CONDA_ENVIRONMENT_FILE}" -y; then
+    echo "Error: Failed to update conda environment. Trying to recreate..."
+    $HOME/.local/bin/micromamba remove -r "$HOME/micromamba" -n ldm --all -y
+    create_conda_env
 fi
 
 echo "Runtime environment setup completed successfully."
