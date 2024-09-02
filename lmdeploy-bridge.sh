@@ -14,19 +14,21 @@ echo "Max Input Length: $max_input_length"
 echo "Max Media Size: $max_media_size"
 echo "Number of GPUs: $num_gpus"
 
-# # Setup conda env
-# conda create -n lmdeploy python=3.8 -y
+# Ensure the runtime environment is set up
+if [ ! -f "conda/envs/linux/bin/python" ]; then
+    echo "Setting up runtime environment..."
+    ./update-runtime.sh
+    if [ $? -ne 0 ]; then
+        echo "Failed to set up runtime environment. Exiting."
+        exit 1
+    fi
+fi
 
-# # Initialize conda for the current shell session
-# eval "$(conda shell.bash hook)"
-
-# # Activate the environment
-# conda activate lmdeploy
-
-# Install required packages
-pip install -U pip
-pip install -e .
-pip install lmdeploy requests pyyaml loguru pillow decord
+# Use the existing runtime to install packages
+echo "Installing required packages..."
+./runtime.sh pip install -U pip
+./runtime.sh pip install -e .
+./runtime.sh pip install lmdeploy requests pyyaml loguru pillow decord
 
 # Set environment variables
 export HORDE_URL="https://stablehorde.net"
@@ -41,5 +43,5 @@ export STATS_OUTPUT_FREQUENCY=30
 export DISABLE_TERMINAL_UI="false"
 
 # Start the multi-modal worker
-# python bridge_multimodal.py "$@"
+echo "Starting multi-modal worker..."
 ./runtime.sh python -s bridge_multimodal.py "$@"
