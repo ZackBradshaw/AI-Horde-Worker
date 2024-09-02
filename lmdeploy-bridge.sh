@@ -14,14 +14,14 @@ echo "Max Input Length: $max_input_length"
 echo "Max Media Size: $max_media_size"
 echo "Number of GPUs: $num_gpus"
 
-# Setup conda env
-conda create -n lmdeploy python=3.8 -y
+# # Setup conda env
+# conda create -n lmdeploy python=3.8 -y
 
-# Initialize conda for the current shell session
-eval "$(conda shell.bash hook)"
+# # Initialize conda for the current shell session
+# eval "$(conda shell.bash hook)"
 
-# Activate the environment
-conda activate lmdeploy
+# # Activate the environment
+# conda activate lmdeploy
 
 # Install required packages
 pip install -U pip
@@ -41,4 +41,5 @@ export STATS_OUTPUT_FREQUENCY=30
 export DISABLE_TERMINAL_UI="false"
 
 # Start the multi-modal worker
-python bridge_multimodal.py "$@"
+# python bridge_multimodal.py "$@"
+./runtime.sh python -s bridge_multimodal.py "$@"
