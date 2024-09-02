@@ -14,31 +14,6 @@ echo "Max Input Length: $max_input_length"
 echo "Max Media Size: $max_media_size"
 echo "Number of GPUs: $num_gpus"
 
-# Function to set up the runtime environment
-setup_runtime() {
-    if [ ! -f "$HOME/micromamba/envs/ldm/bin/python" ]; then
-        echo "Setting up runtime environment..."
-        bash ./update-runtime.sh
-        if [ $? -ne 0 ]; then
-            echo "Failed to set up runtime environment. Exiting."
-            exit 1
-        fi
-    fi
-}
-
-# Function to run commands in the runtime environment
-run_in_runtime() {
-    $HOME/micromamba/envs/ldm/bin/python "$@"
-}
-
-# Set up the runtime environment
-setup_runtime
-
-# Install required packages
-echo "Installing required packages..."
-run_in_runtime -m pip install -U pip
-run_in_runtime -m pip install lmdeploy requests pyyaml loguru pillow decord urllib3
-
 # Set environment variables
 export HORDE_URL="https://stablehorde.net"
 export HORDE_API_KEY="your_api_key_here"
@@ -53,5 +28,5 @@ export DISABLE_TERMINAL_UI="false"
 
 # Start the multi-modal worker
 echo "Starting multi-modal worker..."
-run_in_runtime -s bridge_multimodal.py "$@"
+./runtime.sh python -s bridge_multimodal.py  "$@"
 

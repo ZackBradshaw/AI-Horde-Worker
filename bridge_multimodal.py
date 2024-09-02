@@ -5,6 +5,7 @@ import sys
 import threading
 import requests
 import yaml
+import lmdeploy
 from worker.consts import BRIDGE_CONFIG_FILE, BRIDGE_VERSION
 from worker.logger import logger
 from worker.argparser.multimodal import args

@@ -22,3 +22,6 @@ diffusers
 omegaconf
 setuptools
 typing_extensions
+lmdeploy
+decord
+pillow
