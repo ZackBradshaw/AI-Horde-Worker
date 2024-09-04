@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set venv
+source ~/miniconda3/bin/activate myenv
+
 # Set default values if not provided
 model_name=${model_name:-"internlm/internlm-xcomposer2d5-7b"}
 max_new_tokens=${max_new_tokens:-2048}
