@@ -61,4 +61,4 @@ export LD_LIBRARY_PATH=/usr/local/cuda-11.5/lib64:$LD_LIBRARY_PATH
 
 # Start the multi-modal worker
 echo "Starting multi-modal worker..."
-python bridge_multimodal.py "$@"
+python3 bridge_multimodal.py "$@"
