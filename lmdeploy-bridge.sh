@@ -28,5 +28,6 @@ export DISABLE_TERMINAL_UI="false"
 
 # Start the multi-modal worker
 echo "Starting multi-modal worker..."
-./runtime.sh python -s bridge_multimodal.py  "$@"
+pip install lmdeploy
+./runtime-local.sh python -s bridge_multimodal.py  "$@"
 

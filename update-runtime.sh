@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ignore_hordelib=false
+scribe=true
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]
